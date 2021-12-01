@@ -1,50 +1,54 @@
-import getpass
+import sys
 import socket
-
 # https://stackoverflow.com/questions/35805078/how-do-i-convert-a-password-into-asterisks-while-it-is-being-entered
 # https://www.youtube.com/watch?v=27qfn3Gco00
 
+def str_to_bytes(str):
+  return bytes(str, 'utf-8')
+
+
+def bytes_to_str(data):
+  return data.decode('UTF-8')
+
+ip_addr = str(input("Please enter the server ip address you want to connect: "))
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+    sock.connect((ip_addr, 5090))
+    print('Enter lines of text then Ctrl+D or Ctrl+C to quit')
+    while True:
+        line = sys.stdin.readline()
+        if not line:
+            # End of standard input, exit this entire script
+            break
+        sock.sendall(f'{line}'.encode('utf-8'))
+        while True:
+            data = sock.recv(128)
+            print(data.decode("utf-8"), end='')
+            if len(data) < 128:
+                # No more of this message, go back to waiting for next message
+                break
+'''
+fromServer = " "
+fromUser = ""
+while fromServer != "":
+    fromServer = bytes_to_str(s.recv(4096))
+    print(fromServer)
+    if fromServer == "Bye.":
+        break
+    fromUser = str(input())
+    if fromUser != "":
+        print("Client: " + fromUser)
+        s.send(str_to_bytes(fromUser))
+'''
 
 
 
-s = socket.socket()
-host = input(str("Please enter the host address of the sender: "))
-port = 8080
-s.connect((host, port))
-print("Connected Successfully")
 
-check_account = str(input("Do you have an account? yes/no: "))
-check_account_bytes = bytes(check_account, 'utf-8')
-s.send(check_account_bytes)
-
-have_account = s.recv(4096)
-have_account_str = have_account.decode('UTF-8')
-
-if have_account_str == "Not have account":
-    username = input("Enter the username you want to register for this account: ")
-    password = input("Enter the password you want to register for this account: ")
-    username_bytes = bytes(username, 'utf-8')
-    password_bytes = bytes(password, 'utf-8')
-    s.send(username_bytes)
-    s.send(password_bytes)
-    username = input("username: ")
-    password = input("password: ")
-    username_bytes = bytes(username, 'utf-8')
-    password_bytes = bytes(password, 'utf-8')
-    s.send(username_bytes)
-    s.send(password_bytes)
-if have_account_str == "Have account":
-    username = input("username: ")
-    password = input("password: ")
-    username_bytes = bytes(username, 'utf-8')
-    password_bytes = bytes(password, 'utf-8')
-    s.send(username_bytes)
-    s.send(password_bytes)
-
-
+'''
 file_name = input(str("Enter the desired filename: "))
 file = open(file_name, 'wb')
 data = s.recv(2048)
 file.write(data)
 file.close()
 print("File has been received successfully")
+'''
