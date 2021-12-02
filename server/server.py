@@ -1,7 +1,7 @@
 import socketserver
 import threading
 import socket
-
+from file_transfer import file_transfer_protocol
 # https://www.delftstack.com/howto/python/get-ip-address-python/
 # https://www.youtube.com/watch?v=27qfn3Gco00
 def str_to_bytes(str):
@@ -10,6 +10,9 @@ def str_to_bytes(str):
 
 def bytes_to_str(data):
   return data.decode('UTF-8')
+
+
+global_account_dict = {}
 
 print("The IP address is: ", socket.gethostbyname(socket.gethostname()))
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -21,13 +24,43 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
         client = f'{self.client_address} on {threading.currentThread().getName()}'
         print(f'Connected: {client}')
         while True:
-            data = self.rfile.readline()
-            if not data:
-                break
-            self.wfile.write(data.decode('utf-8').upper().encode('utf-8'))
-        print(f'Closed: {client}')
+            recv_list = self.rfile.readline().decode('utf-8').split()
+            check = recv_list[0]
+            username = recv_list[1]
+            password = recv_list[2]
+            if check == "create_account":
+                if username not in global_account_dict.keys():
+                    global_account_dict[username] = password
+                    self.wfile.write(str_to_bytes("succeed"))
+                    continue
+                else:
+                    self.wfile.write(str_to_bytes("create_error"))
+            if check == "login":
+                if global_account_dict[username] != password:
+                    self.wfile.write(str_to_bytes("login_error"))
+                else:
+                    self.wfile.write(str_to_bytes("succeed login"))
+                    break
 
-with ThreadedTCPServer(('', 5090), CapitalizeHandler) as server:
+
+        '''
+        while True:
+            user_input = ""
+            user1 = file_transfer_protocol(global_account_dict)
+            output = user1.change_state(user_input)
+            self.wfile.write(str_to_bytes(output))
+            user_input = bytes_to_str(self.rfile.readline())
+            while user_input != "":
+                output = user1.change_state(user_input)
+                self.wfile.write(str_to_bytes(output))
+                if output == "Bye":
+                    break
+                user_input = bytes_to_str(self.rfile.readline())
+        print(f'Closed: {client}')
+        '''
+
+
+with ThreadedTCPServer(('', 80), CapitalizeHandler) as server:
     print(f'The capitalization server is running...')
     server.serve_forever()
 

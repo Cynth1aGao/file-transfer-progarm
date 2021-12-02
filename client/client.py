@@ -3,30 +3,65 @@ import socket
 # https://stackoverflow.com/questions/35805078/how-do-i-convert-a-password-into-asterisks-while-it-is-being-entered
 # https://www.youtube.com/watch?v=27qfn3Gco00
 
-def str_to_bytes(str):
-  return bytes(str, 'utf-8')
+def str_to_bytes(data):
+  return data.encode('utf-8')
 
 
 def bytes_to_str(data):
   return data.decode('UTF-8')
 
-ip_addr = str(input("Please enter the server ip address you want to connect: "))
 
+def register_account():
+    username = input("Enter the username you want to register for this account: ")
+    password = input("Enter the password you want to register for this account: ")
+    combine = "create_account " + " ".join([username, password]) + "\n"
+    sock.sendall(str_to_bytes(combine))
+
+def login():
+    username = input("Please enter your username: ")
+    password = input("Please enter your password: ")
+    combine = "login " + " ".join([username, password]) + "\n"
+    sock.sendall(str_to_bytes(combine))
+
+
+ip_addr = str(input("Please enter the server ip address you want to connect: "))
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-    sock.connect((ip_addr, 5090))
+    sock.connect((ip_addr, 80))
     print('Enter lines of text then Ctrl+D or Ctrl+C to quit')
-    while True:
-        line = sys.stdin.readline()
-        if not line:
-            # End of standard input, exit this entire script
-            break
-        sock.sendall(f'{line}'.encode('utf-8'))
+    account_check = str(input("Do you have an account? yes/no: "))
+
+    if account_check == "no":
         while True:
-            data = sock.recv(128)
-            print(data.decode("utf-8"), end='')
-            if len(data) < 128:
-                # No more of this message, go back to waiting for next message
+            register_account()
+            data = bytes_to_str(sock.recv(4096))
+            if data == "create_error":
+                print("The username already existed, please choose another one")
+            elif data == "succeed":
                 break
+    while True:
+        login()
+        data = bytes_to_str(sock.recv(4096))
+        if data == "login_error":
+            print("Wrong username or password, try again")
+        elif data == "succeed login":
+            break
+    print("You log in to your account successfully")
+
+    '''
+    fromUser = ""
+    fromServer = bytes_to_str(sock.recv(4096))
+    while fromServer != "":
+        print(fromServer)
+        if fromServer == "Bye.":
+            break
+        fromUser = sys.stdin.readline()
+        if fromUser != "":
+            print("Client: " + fromUser)
+            sock.sendall(str_to_bytes(fromUser))
+        fromServer = bytes_to_str(sock.recv(4096))
+    '''
+
+
 '''
 fromServer = " "
 fromUser = ""
