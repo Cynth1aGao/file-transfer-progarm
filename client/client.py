@@ -38,6 +38,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 print("The username already existed, please choose another one")
             elif data == "succeed":
                 break
+
     while True:
         login()
         data = bytes_to_str(sock.recv(4096))
@@ -46,8 +47,39 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         elif data == "succeed login":
             break
     print("You log in to your account successfully")
+    userinput = str(input("Type logout if you want to log out or Type no if you don't want to logout: "))
+    while True:
+        sock.sendall(str_to_bytes(userinput + "\n"))
+        print_data = bytes_to_str(sock.recv(4096))
+        print(print_data)
+        if print_data == "Bye":
+            break
+        userinput = str(input())
 
-    '''
+
+    filename = bytes_to_str(sock.recv(4096))
+    print(filename)
+    if " " not in filename:
+        print("YES not in")
+        file = open(filename, "rb")
+        print("Yes open")
+        data_read = file.read(4096)
+        print("yes read ")
+        print()
+        print(type(data_read))
+        sock.sendall(data_read + str_to_bytes("\n"))
+    else:
+        filename = bytes_to_str(sock.recv(4096)).split()
+        for i in filename:
+            file = open(i, "rb")
+            data_read = file.read(4096)
+            sock.sendall(data_read)
+
+
+
+
+
+'''
     fromUser = ""
     fromServer = bytes_to_str(sock.recv(4096))
     while fromServer != "":

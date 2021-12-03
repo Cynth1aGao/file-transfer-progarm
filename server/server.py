@@ -13,7 +13,7 @@ def bytes_to_str(data):
 
 
 global_account_dict = {}
-
+global_file_transfer = {}
 print("The IP address is: ", socket.gethostbyname(socket.gethostname()))
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     daemon_threads = True
@@ -23,6 +23,7 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
     def handle(self):
         client = f'{self.client_address} on {threading.currentThread().getName()}'
         print(f'Connected: {client}')
+        global_username = ""
         while True:
             recv_list = self.rfile.readline().decode('utf-8').split()
             check = recv_list[0]
@@ -30,34 +31,62 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
             password = recv_list[2]
             if check == "create_account":
                 if username not in global_account_dict.keys():
-                    global_account_dict[username] = password
+                    global_account_dict[username] = [password, False]
                     self.wfile.write(str_to_bytes("succeed"))
                     continue
                 else:
                     self.wfile.write(str_to_bytes("create_error"))
             if check == "login":
-                if global_account_dict[username] != password:
+                if global_account_dict[username][0] != password:
                     self.wfile.write(str_to_bytes("login_error"))
                 else:
                     self.wfile.write(str_to_bytes("succeed login"))
+                    global_account_dict[username][1] = True
+                    global_username = username
                     break
+        user1 = file_transfer_protocol(global_username, global_account_dict, global_file_transfer)
+        output = ""
+        while output != "Bye":
+            user_input = bytes_to_str(self.rfile.readline()).strip('\n')
+            #print(user_input)
+            output = user1.change_state(user_input)
+            #print(user1.state)
+            #print(output)
+            self.wfile.write(str_to_bytes(output))
 
+        filename = ""
+        if len(list(global_file_transfer.keys())) > 1:
+            for i in global_file_transfer.keys():
+                filename = " ".join(i)
+        else:
+            filename = list(global_file_transfer.keys())[0]
 
-        '''
-        while True:
-            user_input = ""
-            user1 = file_transfer_protocol(global_account_dict)
+        self.wfile.write(str_to_bytes(filename))
+        print(filename)
+        if len(list(global_file_transfer.keys())) > 1:
+            for i in list(global_file_transfer.keys()):
+                file = open(i, 'wb')
+                data = self.request.recv(4096)
+                file.write(data)
+        else:
+            file = open(list(global_file_transfer.keys())[0], 'wb')
+            data = self.request.recv(4096)
+            file.write(data)
+'''
+    while True:
+        user_input = ""
+        user1 = file_transfer_protocol(global_account_dict)
+        output = user1.change_state(user_input)
+        self.wfile.write(str_to_bytes(output))
+        user_input = bytes_to_str(self.rfile.readline())
+        while user_input != "":
             output = user1.change_state(user_input)
             self.wfile.write(str_to_bytes(output))
+            if output == "Bye":
+                break
             user_input = bytes_to_str(self.rfile.readline())
-            while user_input != "":
-                output = user1.change_state(user_input)
-                self.wfile.write(str_to_bytes(output))
-                if output == "Bye":
-                    break
-                user_input = bytes_to_str(self.rfile.readline())
-        print(f'Closed: {client}')
-        '''
+    print(f'Closed: {client}')
+'''
 
 
 with ThreadedTCPServer(('', 80), CapitalizeHandler) as server:
