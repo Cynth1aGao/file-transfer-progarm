@@ -97,6 +97,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             check_box()
             userinput = str(input("Here is the main menu: check_box; check_active_users; log out. Type what do you want: "))
         sock.sendall(str_to_bytes(userinput + "\n"))
+        print("test: ", str_to_bytes(userinput + "\n"))
         print_data = bytes_to_str(sock.recv(4096))
         if print_data == "File already transferred!Type 'log out' if you want to log out, type 'user list' to check other active users:":
             transfer_file()
@@ -104,4 +105,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         if print_data == "Bye":
             break
         userinput = str(input())
+
+
 
