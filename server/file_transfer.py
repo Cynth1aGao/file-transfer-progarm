@@ -11,8 +11,7 @@ class file_transfer_protocol:
         if self.state == "log in":
             self.accounts[self.username][1] = True
             if user_input == "logout":
-                output = "logging out..."
-                self.state = "log out"
+                output = "Bye"
             elif user_input == "no":
                 output = "Do you want to check the active users? yes/no:"
                 self.state = "active users"
@@ -38,10 +37,12 @@ class file_transfer_protocol:
                 output = "Type wrong username! Please try again!"
                 self.state = "choose user"
         elif self.state == "transfer file":
+            # first value in the value list is sender's username, second value is the receiver's username
             self.file_transfer[user_input] = [self.username, self.user_choose]
             output = "File already transferred! If the receiver run the command to check file would see! Type 'log out' if you want to log out, type 'user list' to check other active users:"
             self.state = "log out"
         elif self.state == "log out":
+            output = "Bye"
             if user_input == "user list":
                 output = "Here is the list of active user: [" + ' '.join(self.active_user) + "]. Type the username you want to choose to transfer the file or type 'not right now' if you don't want to transfer the file rigt now:"
                 self.state = "choose user"
