@@ -62,31 +62,17 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
                         self.wfile.write(data_read)
 
     def transfer_file(self):
-        filename = ""
-        if len(list(global_file_transfer.keys())) > 1:
-            for i in global_file_transfer.keys():
-                filename = " ".join(i)
-        else:
-            filename = list(global_file_transfer.keys())[0]
+
+        filename = list(global_file_transfer.keys())[0]
 
         self.wfile.write(str_to_bytes(filename))
-        #print(filename)
-        if len(list(global_file_transfer.keys())) > 1:
-            for i in list(global_file_transfer.keys()):
-                file_name = str(global_file_transfer.get(i)[0]) + "#" + str(global_file_transfer.get(i)[1]) + "#" + str(
-                    i)
-                file = open(file_name, 'wb')
-                data = self.request.recv(4096)
-                file.write(data)
-                file.close()
-        else:
-            filename = str(global_file_transfer.get(list(global_file_transfer.keys())[0])[0]) + "#" + str(
-                global_file_transfer.get(list(global_file_transfer.keys())[0])[1]) + "#" + str(
-                list(global_file_transfer.keys())[0])
-            file = open(filename, 'wb')
-            data = self.request.recv(4096)
-            file.write(data)
-            file.close()
+        filename = str(global_file_transfer.get(list(global_file_transfer.keys())[0])[0]) + "#" + str(
+            global_file_transfer.get(list(global_file_transfer.keys())[0])[1]) + "#" + str(
+            list(global_file_transfer.keys())[0])
+        file = open(filename, 'wb')
+        data = self.request.recv(4096)
+        file.write(data)
+        file.close()
 
     def handle(self):
         client = f'{self.client_address} on {threading.currentThread().getName()}'

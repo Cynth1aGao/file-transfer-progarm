@@ -40,16 +40,10 @@ def check_box():
 
 def transfer_file():
     filename = bytes_to_str(sock.recv(4096))
-    if " " not in filename:
-        file = open(filename, "rb")
-        data_read = file.read(4096)
-        sock.sendall(data_read + str_to_bytes("\n"))
-    else:
-        filenames = bytes_to_str(sock.recv(4096)).split()
-        for i in filenames:
-            file = open(i, "rb")
-            data_read = file.read(4096)
-            sock.sendall(data_read)
+    file = open(filename, "rb")
+    data_read = file.read(4096)
+    sock.sendall(data_read + str_to_bytes("\n"))
+
 
 # Helper function for user to log in
 def login():
