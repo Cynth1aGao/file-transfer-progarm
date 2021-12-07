@@ -28,7 +28,6 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
     def check_box(self):
         # receive the client's username if the client wants to check the box
         show_file = bytes_to_str(self.rfile.readline()).strip('\n')
-        print("show_file", show_file)
         # find the current dictionary
         cur_dir = os.getcwd()
         file_list = os.listdir(cur_dir)
@@ -39,11 +38,9 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
         if show_file != "no":
             for file in file_list:
                 if "#" in file:
-                    print("file in file list: ", file)
                     # check whether there is a file in the server that needs to be transferred to that user
                     file_split = file.split("#")
                     if file_split[1] == show_file:
-                        print("filter out", file_split[1])
                         check_file = "Your box is not empty and "
                         accum_file += 1
                         # append that file to the transfer_file list
@@ -52,23 +49,29 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
             # send client the information of the client's box
             self.wfile.write(str_to_bytes(check_file + "there are " + str(accum_file) + " file/files."))
             # information received from the client to check whether the client wants to download the file in the box
+            print(transfer_file)
             if accum_file != 0:
                 download = bytes_to_str(self.rfile.readline()).strip('\n')
                 if download == "yes":
                     # download all the files in the box
                     for file in transfer_file:
+                        path = str(os.getcwd())
+                        file_len = os.path.getsize(path + "/" + str(file))
+                        self.wfile.write(file_len.to_bytes(2, 'little'))
                         file_download = open(file, "rb")
-                        data_read = file_download.read(4096)
+                        data_read = file_download.read(file_len)
                         self.wfile.write(data_read)
+
+
 
     def transfer_file(self):
 
-        filename = list(global_file_transfer.keys())[0]
+        filename = list(global_file_transfer.keys())[-1]
 
         self.wfile.write(str_to_bytes(filename))
-        filename = str(global_file_transfer.get(list(global_file_transfer.keys())[0])[0]) + "#" + str(
-            global_file_transfer.get(list(global_file_transfer.keys())[0])[1]) + "#" + str(
-            list(global_file_transfer.keys())[0])
+        filename = str(global_file_transfer.get(list(global_file_transfer.keys())[-1])[0]) + "#" + str(
+            global_file_transfer.get(list(global_file_transfer.keys())[-1])[1]) + "#" + str(
+            list(global_file_transfer.keys())[-1])
         file = open(filename, 'wb')
         data = self.request.recv(4096)
         file.write(data)
@@ -98,8 +101,10 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
                     # if username already exists in the global_account_dict, send to the client the error
                     self.wfile.write(str_to_bytes("create_error"))
             if check == "login":
-                if global_account_dict[username][0] != password:
+                if (username not in list(global_account_dict.keys())) or (global_account_dict[username][0] != password):
                     # send to the client the error that the username not matched the password stored in the account_dict
+                    print(username, password)
+                    print(username not in list(global_account_dict.keys()))
                     self.wfile.write(str_to_bytes("login_error"))
                 else:
                     self.wfile.write(str_to_bytes("succeed login"))
@@ -113,7 +118,6 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
         while output != "Bye":
             user_input = bytes_to_str(self.rfile.readline()).strip('\n')
             output = user1.change_state(user_input)
-            print("output", output)
             if output == "show_box":
                 self.check_box()
                 user1.state = "log in"
