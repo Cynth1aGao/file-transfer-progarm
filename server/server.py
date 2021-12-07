@@ -55,10 +55,14 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
                 if download == "yes":
                     # download all the files in the box
                     for file in transfer_file:
+                        path = str(os.getcwd())
+                        file_len = os.path.getsize(path + "/" + str(file))
+                        self.wfile.write(file_len.to_bytes(2, 'little'))
                         file_download = open(file, "rb")
-                        data_read = file_download.read(4096)
+                        data_read = file_download.read(file_len)
                         self.wfile.write(data_read)
-                        file_download.close()
+
+
 
     def transfer_file(self):
 

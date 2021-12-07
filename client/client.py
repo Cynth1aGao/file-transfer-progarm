@@ -31,10 +31,16 @@ def check_box():
             sock.sendall(str_to_bytes(download + "\n"))
             if download == "yes":
                 for i in range(int(split_list[8])):
-                    file = open("receive_file.txt", 'wb')
-                    data = sock.recv(4096)
+                    recv_var = sock.recv(2)
+                    file_len = int.from_bytes(recv_var, "little")
+                    name = str(input("Enter the file name you want for the incomeing file: "))
+                    file = open(name, 'wb')
+                    data = sock.recv(file_len)
                     file.write(data)
                     file.close()
+
+
+
     else:
         sock.sendall(str_to_bytes("no" + "\n"))
 
