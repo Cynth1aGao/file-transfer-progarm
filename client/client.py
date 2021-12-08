@@ -3,37 +3,9 @@ import socket
 from cryptography.fernet import Fernet
 # https://stackoverflow.com/questions/35805078/how-do-i-convert-a-password-into-asterisks-while-it-is-being-entered
 # https://www.youtube.com/watch?v=27qfn3Gco00
-
+# https://www.geeksforgeeks.org/encrypt-and-decrypt-files-using-python/
 key = "-Zj2YJMUgYDLs0Sa8qU0Gd-tuZxHfjlsNoXZbTnN1ME="
 f = Fernet(bytes(key, 'utf-8'))
-'''
-key = Fernet.generate_key()
-with open('mykey.key', 'wb') as mykey:
-    mykey.write(key)
-
-with open('mykey.key', 'rb') as mykey:
-    key = mykey.read()
-print("the key is:", key)
-
-f = Fernet(key)
-
-with open('receive_file.txt', 'rb') as original_file:
-    original = original_file.read()
-    print("the original is:", original)
-encrypted = f.encrypt(original)
-print("the encrypted is:", encrypted)
-with open('enc_receive_file.txt', 'wb') as encrypted_file:
-    encrypted_file.write(encrypted)
-    print("the encrypted file is:", encrypted_file)
-
-with open('enc_receive_file.txt', 'rb') as encrypted_file:
-    encrypted = encrypted_file.read()
-decrypted = f.decrypt(encrypted)
-print("the decrypted is:", decrypted)
-with open('dec_receive_file.txt', 'wb') as dec_file:
-    dec_file.write(decrypted)
-    print("the decrypted file is:", dec_file)
-'''
 
 def str_to_bytes(data):
   return data.encode('utf-8')

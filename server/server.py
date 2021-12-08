@@ -4,18 +4,10 @@ import socket
 import os
 import os.path
 
+# https://www.geeksforgeeks.org/encrypt-and-decrypt-files-using-python/
 from cryptography.fernet import Fernet
 
 key = "-Zj2YJMUgYDLs0Sa8qU0Gd-tuZxHfjlsNoXZbTnN1ME="
-#"-Zj2YJMUgYDLs0Sa8qU0Gd-tuZxHfjlsNoXZbTnN1ME="
-'''
-with open(key, 'wb') as mykey:
-    mykey.write(key)
-
-with open(key, 'rb') as mykey:
-    key = mykey.read()
-#print("the key is:", key)
-'''
 f = Fernet(bytes(key, 'utf-8'))
 
 
