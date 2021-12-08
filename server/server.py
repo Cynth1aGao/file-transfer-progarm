@@ -6,14 +6,17 @@ import os.path
 
 from cryptography.fernet import Fernet
 
-key = Fernet.generate_key()
-with open('mykey.key', 'wb') as mykey:
+key = "-Zj2YJMUgYDLs0Sa8qU0Gd-tuZxHfjlsNoXZbTnN1ME="
+#"-Zj2YJMUgYDLs0Sa8qU0Gd-tuZxHfjlsNoXZbTnN1ME="
+'''
+with open(key, 'wb') as mykey:
     mykey.write(key)
 
-with open('mykey.key', 'rb') as mykey:
+with open(key, 'rb') as mykey:
     key = mykey.read()
 #print("the key is:", key)
-f = Fernet(key)
+'''
+f = Fernet(bytes(key, 'utf-8'))
 
 
 from file_transfer import file_transfer_protocol
@@ -64,9 +67,19 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
             print(transfer_file)
             if accum_file != 0:
                 download = bytes_to_str(self.rfile.readline()).strip('\n')
+
                 if download == "yes":
                     # download all the files in the box
                     for file in transfer_file:
+                        with open(file, 'rb') as original_file:
+                            original = original_file.read()
+                            # print("the original is:", original)
+                        encrypted = f.encrypt(original)
+                        # print("the encrypted is:", encrypted)
+                        with open(file, 'wb') as encrypted_file:
+                            encrypted_file.write(encrypted)
+                            # print("the encrypted file is:", encrypted_file)
+
                         file_download = open(file, "rb")
                         data_read = file_download.read(4096)
                         self.wfile.write(data_read)
@@ -81,25 +94,6 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
             global_file_transfer.get(list(global_file_transfer.keys())[-1])[1]) + "#" + str(
             list(global_file_transfer.keys())[-1])
         file = open(filename, 'wb')
-
-        with open(filename, 'rb') as original_file:
-            original = original_file.read()
-            #print("the original is:", original)
-        encrypted = f.encrypt(original)
-        #print("the encrypted is:", encrypted)
-        with open(filename, 'wb') as encrypted_file:
-            encrypted_file.write(encrypted)
-            #print("the encrypted file is:", encrypted_file)
-        with open(filename, 'rb') as encrypted_file:
-            #encrypted_file.open()
-            encrypted = encrypted_file.read()
-        decrypted = f.decrypt(encrypted)
-        #print("the decrypted is:", decrypted)
-        with open(filename, 'wb') as decrypted_file:
-            decrypted_file.write(decrypted)
-            #decrypted_file.open()
-            #print("the decrypted file is:", decrypted_file)
-
         data = self.request.recv(4096)
         file.write(data)
         file.close()

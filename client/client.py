@@ -3,6 +3,9 @@ import socket
 from cryptography.fernet import Fernet
 # https://stackoverflow.com/questions/35805078/how-do-i-convert-a-password-into-asterisks-while-it-is-being-entered
 # https://www.youtube.com/watch?v=27qfn3Gco00
+
+key = "-Zj2YJMUgYDLs0Sa8qU0Gd-tuZxHfjlsNoXZbTnN1ME="
+f = Fernet(bytes(key, 'utf-8'))
 '''
 key = Fernet.generate_key()
 with open('mykey.key', 'wb') as mykey:
@@ -61,10 +64,27 @@ def check_box():
             sock.sendall(str_to_bytes(download + "\n"))
             if download == "yes":
                 for i in range(int(split_list[8])):
-                    file = open('receive_file.txt', 'wb')
-                    data = sock.recv(4096)
-                    file.write(data)
+                    #transfer_file = bytes_to_str(sock.recv(4096))
+                    #file = open(transfer_file, 'wb')
+
+                    file = open("receive_file.txt", 'wb')
+                    x = sock.recv(4096)
+                    file.write(x)
                     file.close()
+                    with open('receive_file.txt', 'rb') as encrypted_file:
+                        # encrypted_file.open()
+                        encrypted = encrypted_file.read()
+                        #print(encrypted)
+                    decrypted = f.decrypt(encrypted)
+                    # print("the decrypted is:", decrypted)
+                    with open('receive_file.txt', 'wb') as decrypted_file:
+                        decrypted_file.write(decrypted)
+                        # decrypted_file.open()
+                        # print("the decrypted file is:", decrypted_file)
+
+                    #data = sock.recv(4096)
+                    #file.write(data)
+                    #file.close()
     else:
         sock.sendall(str_to_bytes("no" + "\n"))
 
