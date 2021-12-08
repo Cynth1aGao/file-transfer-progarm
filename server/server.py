@@ -4,9 +4,13 @@ import socket
 import os
 import os.path
 
+# https://www.geeksforgeeks.org/encrypt-and-decrypt-files-using-python/
+from cryptography.fernet import Fernet
 from file_transfer import file_transfer_protocol
-# https://www.delftstack.com/howto/python/get-ip-address-python/
-# https://www.youtube.com/watch?v=27qfn3Gco00
+
+key = "-Zj2YJMUgYDLs0Sa8qU0Gd-tuZxHfjlsNoXZbTnN1ME="
+f = Fernet(bytes(key, 'utf-8'))
+
 def str_to_bytes(str):
   return bytes(str, 'utf-8')
 
@@ -55,12 +59,21 @@ class CapitalizeHandler(socketserver.StreamRequestHandler):
                 if download == "yes":
                     # download all the files in the box
                     for file in transfer_file:
+                        with open(file, 'rb') as original_file:
+                            original = original_file.read()
+                            # print("the original is:", original)
+                        encrypted = f.encrypt(original)
+                        # print("the encrypted is:", encrypted)
+                        with open(file, 'wb') as encrypted_file:
+                            encrypted_file.write(encrypted)
+
                         path = str(os.getcwd())
                         file_len = os.path.getsize(path + "/" + str(file))
                         self.wfile.write(file_len.to_bytes(2, 'little'))
                         file_download = open(file, "rb")
                         data_read = file_download.read(file_len)
                         self.wfile.write(data_read)
+                        file_download.close()
 
 
 

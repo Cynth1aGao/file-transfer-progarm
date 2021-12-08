@@ -2,6 +2,12 @@ import sys
 import socket
 # https://stackoverflow.com/questions/35805078/how-do-i-convert-a-password-into-asterisks-while-it-is-being-entered
 # https://www.youtube.com/watch?v=27qfn3Gco00
+from cryptography.fernet import Fernet
+
+# https://www.geeksforgeeks.org/encrypt-and-decrypt-files-using-python/
+key = "-Zj2YJMUgYDLs0Sa8qU0Gd-tuZxHfjlsNoXZbTnN1ME="
+f = Fernet(bytes(key, 'utf-8'))
+
 
 def str_to_bytes(data):
   return data.encode('utf-8')
@@ -31,14 +37,22 @@ def check_box():
             sock.sendall(str_to_bytes(download + "\n"))
             if download == "yes":
                 for i in range(int(split_list[8])):
+
                     recv_var = sock.recv(2)
                     file_len = int.from_bytes(recv_var, "little")
                     name = str(input("Enter the file name you want for the incomeing file: "))
                     file = open(name, 'wb')
-                    data = sock.recv(file_len)
-                    file.write(data)
+                    x = sock.recv(file_len)
+                    file.write(x)
                     file.close()
-
+                    with open(name, 'rb') as encrypted_file:
+                        # encrypted_file.open()
+                        encrypted = encrypted_file.read()
+                        # print(encrypted)
+                    decrypted = f.decrypt(encrypted)
+                    # print("the decrypted is:", decrypted)
+                    with open(name, 'wb') as decrypted_file:
+                        decrypted_file.write(decrypted)
 
 
     else:
@@ -104,7 +118,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         if print_data == "Bye":
             break
         userinput = str(input())
-
-
-
 
