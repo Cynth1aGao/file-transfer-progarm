@@ -1,36 +1,7 @@
 import sys
 import socket
-from cryptography.fernet import Fernet
 # https://stackoverflow.com/questions/35805078/how-do-i-convert-a-password-into-asterisks-while-it-is-being-entered
 # https://www.youtube.com/watch?v=27qfn3Gco00
-'''
-key = Fernet.generate_key()
-with open('mykey.key', 'wb') as mykey:
-    mykey.write(key)
-
-with open('mykey.key', 'rb') as mykey:
-    key = mykey.read()
-print("the key is:", key)
-
-f = Fernet(key)
-
-with open('receive_file.txt', 'rb') as original_file:
-    original = original_file.read()
-    print("the original is:", original)
-encrypted = f.encrypt(original)
-print("the encrypted is:", encrypted)
-with open('enc_receive_file.txt', 'wb') as encrypted_file:
-    encrypted_file.write(encrypted)
-    print("the encrypted file is:", encrypted_file)
-
-with open('enc_receive_file.txt', 'rb') as encrypted_file:
-    encrypted = encrypted_file.read()
-decrypted = f.decrypt(encrypted)
-print("the decrypted is:", decrypted)
-with open('dec_receive_file.txt', 'wb') as dec_file:
-    dec_file.write(decrypted)
-    print("the decrypted file is:", dec_file)
-'''
 
 def str_to_bytes(data):
   return data.encode('utf-8')
@@ -44,7 +15,6 @@ def register_account():
     username = input("Enter the username you want to register for this account: ")
     password = input("Enter the password you want to register for this account: ")
     combine = "create_account " + " ".join([username, password]) + "\n"
-    #print(combine)
     sock.sendall(str_to_bytes(combine))
 
 def check_box():
@@ -61,7 +31,7 @@ def check_box():
             sock.sendall(str_to_bytes(download + "\n"))
             if download == "yes":
                 for i in range(int(split_list[8])):
-                    file = open('receive_file.txt', 'wb')
+                    file = open("receive_file.txt", 'wb')
                     data = sock.recv(4096)
                     file.write(data)
                     file.close()
